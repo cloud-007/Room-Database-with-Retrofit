@@ -3,11 +3,10 @@ package com.example.roomdatabasewithretrofit
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import androidx.annotation.MainThread
 import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.core.view.isVisible
-import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.*
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.roomdatabasewithretrofit.Data.UserDao
 import com.example.roomdatabasewithretrofit.adapter.TodoAdapter
@@ -23,6 +22,7 @@ const val TAG = "MainActivity"
 
 class MainActivity : AppCompatActivity() {
 
+
     private lateinit var binding: ActivityMainBinding
     private lateinit var todoAdapter: TodoAdapter
 
@@ -34,10 +34,18 @@ class MainActivity : AppCompatActivity() {
         mViewModel = ViewModelProvider(this).get(UserViewModel::class.java)
         setContentView(binding.root)
 
-        var adapter = TodoAdapter()
+        val adapter = TodoAdapter()
 
-        val recyclewView = binding.rvToDos
-        recyclewView.adapter = adapter
+        val recyclerView = binding.rvToDos
+        recyclerView.adapter = adapter
+        recyclerView.layoutManager = LinearLayoutManager(this)
+
+        //userviewModel
+
+        mViewModel = ViewModelProvider(this)[UserViewModel::class.java]
+        mViewModel.readAllData.observe(this, { user->
+            adapter.setData(user)
+        })
 
         lifecycleScope.launchWhenCreated {
             binding.progressBar.isVisible = true
@@ -60,20 +68,11 @@ class MainActivity : AppCompatActivity() {
                    // Log.d("inserted", f.toString())
                     Log.d("debug", todo.id.toString() + " "+ todo.title)
                 }
-                //Log.d("debug", "Done")
-                adapter = TodoAdapter()
-                binding.rvToDos.adapter = adapter
             } else {
                 Log.e(TAG, "Response not successful")
             }
             binding.progressBar.isVisible = false
         }
-    }
-
-    private fun setUpRecyclerView() = binding.rvToDos.apply {
-        todoAdapter = TodoAdapter()
-        adapter = todoAdapter
-        layoutManager = LinearLayoutManager(this@MainActivity)
     }
 
 }
