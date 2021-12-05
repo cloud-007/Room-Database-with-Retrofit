@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">Room Database with Retrofit</string>
+    <string name="placeholder">PlaceHolder</string>
+</resources>
